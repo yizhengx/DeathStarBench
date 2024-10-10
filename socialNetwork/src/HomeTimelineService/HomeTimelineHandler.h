@@ -273,11 +273,18 @@ void HomeTimelineHandler::ReadHomeTimeline(
   } while (true);
 
   // unpin the thread
-  CPU_ZERO(&cpuset);  // Clear the CPU set
+  CPU_ZERO(&cpuset);
+  // Allow the thread to run on any CPU core
+  for (int i = 0; i < num_cores; ++i) {
+      CPU_SET(i, &cpuset);
+  }
+
+  pthread_t this_thread = pthread_self();
+  
   if (pthread_setaffinity_np(this_thread, sizeof(cpu_set_t), &cpuset)) {
-      std::cerr << "Failed to unpin thread" << std::endl;
+      std::cerr << "Failed to release CPU affinity" << std::endl;
   } else {
-      std::cout << "Thread unpinned" << std::endl;
+      std::cout << "Thread CPU affinity released (can run on any core)" << std::endl;
   }
 
   // // revert to normal scheduling

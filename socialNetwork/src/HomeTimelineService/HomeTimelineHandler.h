@@ -278,8 +278,6 @@ void HomeTimelineHandler::ReadHomeTimeline(
   for (int i = 0; i < num_cores; ++i) {
       CPU_SET(i, &cpuset);
   }
-
-  pthread_t this_thread = pthread_self();
   
   if (pthread_setaffinity_np(this_thread, sizeof(cpu_set_t), &cpuset)) {
       std::cerr << "Failed to release CPU affinity" << std::endl;

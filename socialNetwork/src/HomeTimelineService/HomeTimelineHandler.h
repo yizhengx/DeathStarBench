@@ -217,17 +217,38 @@ void HomeTimelineHandler::ReadHomeTimeline(
     int stop_idx, const std::map<std::string, std::string> &carrier) {
   // Initialize a span
 
-  sched_param sch_params;
-  sch_params.sched_priority = sched_get_priority_max(SCHED_FIFO);  // Use max priority for real-time
+  // sched_param sch_params;
+  // sch_params.sched_priority = sched_get_priority_max(SCHED_FIFO);  // Use max priority for real-time
   
-  // Get the current thread handle
-  pthread_t this_thread = pthread_self();
+  // // Get the current thread handle
+  // pthread_t this_thread = pthread_self();
   
-  // Set real-time scheduling with the FIFO policy
-  if (pthread_setschedparam(this_thread, SCHED_FIFO, &sch_params)) {
-      std::cerr << "Failed to set thread scheduling: Insufficient permissions or incorrect settings." << std::endl;
+  // // Set real-time scheduling with the FIFO policy
+  // if (pthread_setschedparam(this_thread, SCHED_FIFO, &sch_params)) {
+  //     std::cerr << "Failed to set thread scheduling: Insufficient permissions or incorrect settings." << std::endl;
+  // } else {
+  //     std::cout << "Thread set to real-time priority" << std::endl;
+  // }
+
+  int num_cores = sysconf(_SC_NPROCESSORS_ONLN);  // Get number of available CPU cores
+
+  // Random number generation
+  std::random_device rd;                           // Seed
+  std::mt19937 gen(rd());                          // Random number engine
+  std::uniform_int_distribution<> dist(0, num_cores - 1);
+
+  int random_core_id = dist(gen);  // Generate a random number between 0 and num_cores - 1
+
+  cpu_set_t cpuset;
+  CPU_ZERO(&cpuset);           // Clear the CPU set
+  CPU_SET(core_id, &cpuset);   // Add the selected core to the CPU set
+  
+  pthread_t this_thread = pthread_self();  // Get the current thread
+
+  if (pthread_setaffinity_np(this_thread, sizeof(cpu_set_t), &cpuset)) {
+      std::cerr << "Failed to pin thread to core " << core_id << std::endl;
   } else {
-      std::cout << "Thread set to real-time priority" << std::endl;
+      std::cout << "Thread pinned to core " << core_id << std::endl;
   }
 
   const char* env = getenv("DELAY");
@@ -251,13 +272,21 @@ void HomeTimelineHandler::ReadHomeTimeline(
 
   } while (true);
 
-  // revert to normal scheduling
-  sch_params.sched_priority = 0;
-  if (pthread_setschedparam(this_thread, SCHED_OTHER, &sch_params)) {
-      std::cerr << "Failed to set thread scheduling: Insufficient permissions or incorrect settings." << std::endl;
+  // unpin the thread
+  CPU_ZERO(&cpuset);  // Clear the CPU set
+  if (pthread_setaffinity_np(this_thread, sizeof(cpu_set_t), &cpuset)) {
+      std::cerr << "Failed to unpin thread" << std::endl;
   } else {
-      std::cout << "Thread set to normal priority" << std::endl;
+      std::cout << "Thread unpinned" << std::endl;
   }
+
+  // // revert to normal scheduling
+  // sch_params.sched_priority = 0;
+  // if (pthread_setschedparam(this_thread, SCHED_OTHER, &sch_params)) {
+  //     std::cerr << "Failed to set thread scheduling: Insufficient permissions or incorrect settings." << std::endl;
+  // } else {
+  //     std::cout << "Thread set to normal priority" << std::endl;
+  // }
 
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;

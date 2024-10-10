@@ -237,7 +237,7 @@ void HomeTimelineHandler::ReadHomeTimeline(
   std::mt19937 gen(rd());                          // Random number engine
   std::uniform_int_distribution<> dist(0, num_cores - 1);
 
-  int random_core_id = dist(gen);  // Generate a random number between 0 and num_cores - 1
+  int core_id = dist(gen);  // Generate a random number between 0 and num_cores - 1
 
   cpu_set_t cpuset;
   CPU_ZERO(&cpuset);           // Clear the CPU set

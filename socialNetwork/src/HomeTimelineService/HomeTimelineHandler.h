@@ -6,6 +6,7 @@
 #include <future>
 #include <iostream>
 #include <string>
+#include <pthread.h>
 
 #include "../../gen-cpp/HomeTimelineService.h"
 #include "../../gen-cpp/PostStorageService.h"
@@ -215,6 +216,49 @@ void HomeTimelineHandler::ReadHomeTimeline(
     std::vector<Post> &_return, int64_t req_id, int64_t user_id, int start_idx,
     int stop_idx, const std::map<std::string, std::string> &carrier) {
   // Initialize a span
+
+  sched_param sch_params;
+  sch_params.sched_priority = sched_get_priority_max(SCHED_FIFO);  // Use max priority for real-time
+  
+  // Get the current thread handle
+  pthread_t this_thread = pthread_self();
+  
+  // Set real-time scheduling with the FIFO policy
+  if (pthread_setschedparam(this_thread, SCHED_FIFO, &sch_params)) {
+      std::cerr << "Failed to set thread scheduling: Insufficient permissions or incorrect settings." << std::endl;
+  } else {
+      std::cout << "Thread set to real-time priority" << std::endl;
+  }
+
+  const char* env = getenv("DELAY");
+  unsigned long delay_microseconds = env ? strtoul(env, NULL, 10) : 1000; // Default to 1000 if variable is not set
+
+  // Capture the start time using std::chrono
+  auto start = std::chrono::high_resolution_clock::now();
+
+  // Busy-wait loop using std::chrono
+  do {
+      auto end = std::chrono::high_resolution_clock::now(); // Capture current time
+
+      // Calculate the elapsed time in microseconds
+      auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+      // asm("");  // Prevent compiler optimizations (same as in original code)
+
+      if (elapsed_time >= delay_microseconds) {
+          break;  // Exit the loop when the delay time is reached
+      }
+
+  } while (true);
+
+  // revert to normal scheduling
+  sch_params.sched_priority = 0;
+  if (pthread_setschedparam(this_thread, SCHED_OTHER, &sch_params)) {
+      std::cerr << "Failed to set thread scheduling: Insufficient permissions or incorrect settings." << std::endl;
+  } else {
+      std::cout << "Thread set to normal priority" << std::endl;
+  }
+
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);

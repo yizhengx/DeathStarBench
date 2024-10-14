@@ -61,16 +61,16 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
   LOG(info) << "Creating mongodb index..."; 
-  bool r = false;
-  while (!r) {
-    r = CreateIndex(mongodb_client, "post", "post_id", true);
-    if (!r) {
-      LOG(error) << "Failed to create mongodb index, try again";
-      sleep(1);
-    } else {
-      LOG(info) << "Created mongodb index";
-    }
-  }
+  // bool r = false;
+  // while (!r) {
+  //   r = CreateIndex(mongodb_client, "post", "post_id", true);
+  //   if (!r) {
+  //     LOG(error) << "Failed to create mongodb index, try again";
+  //     sleep(1);
+  //   } else {
+  //     LOG(info) << "Created mongodb index";
+  //   }
+  // }
   mongoc_client_pool_push(mongodb_client_pool, mongodb_client);
   std::shared_ptr<TServerSocket> server_socket = get_server_socket(config_json, "0.0.0.0", port);
 

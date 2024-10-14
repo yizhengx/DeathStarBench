@@ -70,6 +70,7 @@ bool CreateIndex(
           "name", BCON_UTF8 (index_name),
           "unique", BCON_BOOL(unique),
       "}", "]");
+  LOG(info) << "Creating index: " << bson_as_json(create_indexes, NULL);
   r = mongoc_database_write_command_with_opts (
       db, create_indexes, NULL, &reply, &error);
   if (!r) {

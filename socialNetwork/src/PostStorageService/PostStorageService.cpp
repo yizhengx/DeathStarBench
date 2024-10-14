@@ -50,8 +50,7 @@ int main(int argc, char* argv[]) {
   memcached_client_pool = init_memcached_client_pool(
       config_json, "post-storage", 32, memcached_conns);
   mongodb_client_pool =
-      // init_mongodb_client_pool(config_json, "post-storage", mongodb_conns);
-      init_mongodb_client_pool(config_json, "post-storage", 1);
+      init_mongodb_client_pool(config_json, "post-storage", mongodb_conns);
   LOG(info) << "PostStorageService: using only one connection";
   if (memcached_client_pool == nullptr || mongodb_client_pool == nullptr) {
     return EXIT_FAILURE;
@@ -62,17 +61,17 @@ int main(int argc, char* argv[]) {
     LOG(fatal) << "Failed to pop mongoc client";
     return EXIT_FAILURE;
   }
-  LOG(info) << "Creating mongodb index..."; 
-  bool r = false;
-  while (!r) {
-    r = CreateIndex(mongodb_client, "post", "post_id", true);
-    if (!r) {
-      LOG(error) << "Failed to create mongodb index, try again";
-      sleep(1);
-    } else {
-      LOG(info) << "Created mongodb index";
-    }
-  }
+  // LOG(info) << "Creating mongodb index..."; 
+  // bool r = false;
+  // while (!r) {
+  //   r = CreateIndex(mongodb_client, "post", "post_id", true);
+  //   if (!r) {
+  //     LOG(error) << "Failed to create mongodb index, try again";
+  //     sleep(1);
+  //   } else {
+  //     LOG(info) << "Created mongodb index";
+  //   }
+  // }
   mongoc_client_pool_push(mongodb_client_pool, mongodb_client);
   std::shared_ptr<TServerSocket> server_socket = get_server_socket(config_json, "0.0.0.0", port);
 

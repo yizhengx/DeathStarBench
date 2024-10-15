@@ -5,6 +5,8 @@ ARG LIB_REDIS_PLUS_PLUS_VERSION=1.2.3
 # Uninstall any pre-existing libmongoc version
 RUN apt-get remove -y libmongoc-1.0-dev || true
 
+RUN apt-get install curl tar -y
+
 # Download and install libmongoc 1.18.0
 RUN curl -OL https://github.com/mongodb/mongo-c-driver/releases/download/1.18.0/mongo-c-driver-1.18.0.tar.gz && \
     tar -xzf mongo-c-driver-1.18.0.tar.gz && \

@@ -2,7 +2,7 @@ include("../cmake/Findlibmemcached.cmake")
 include("../cmake/Findthrift.cmake")
 include("../cmake/FindLibevent.cmake")
 
-find_package(libmongoc-1.0 1.13 REQUIRED)
+find_package(libmongoc-1.0 1.20 REQUIRED)
 find_package(nlohmann_json 3.5.0 REQUIRED)
 find_package(Threads)
 find_package(OpenSSL REQUIRED)

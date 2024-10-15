@@ -2,15 +2,28 @@ FROM yg397/thrift-microservice-deps:xenial AS builder
 
 ARG LIB_REDIS_PLUS_PLUS_VERSION=1.2.3
 
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    libssl-dev \
+    libsasl2-dev \
+    pkg-config \
+    git \
+    software-properties-common
+
+# Install a newer version of CMake from Kitware's repository
+RUN apt-get remove -y cmake
+RUN curl -fsSL https://apt.kitware.com/kitware-archive.sh | bash
+RUN apt-get update && apt-get install -y cmake
+
 # Uninstall any pre-existing libmongoc version
 RUN apt-get remove -y libmongoc-1.0-dev || true
 
-RUN apt-get install curl tar -y
-
 # Download and install libmongoc 1.28.0
-RUN curl -OL https://github.com/mongodb/mongo-c-driver/releases/download/1.25.0/mongo-c-driver-1.25.0.tar.gz && \
-    tar -xzf mongo-c-driver-1.25.0.tar.gz && \
-    cd mongo-c-driver-1.25.0 && \
+RUN curl -OL https://github.com/mongodb/mongo-c-driver/releases/download/1.28.0/mongo-c-driver-1.28.0.tar.gz && \
+    tar -xzf mongo-c-driver-1.28.0.tar.gz && \
+    cd mongo-c-driver-1.28.0 && \
     mkdir cmake-build && cd cmake-build && \
     cmake -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF .. && \
     make && make install

@@ -7,10 +7,10 @@ RUN apt-get remove -y libmongoc-1.0-dev || true
 
 RUN apt-get install curl tar -y
 
-# Download and install libmongoc 1.18.0
-RUN curl -OL https://github.com/mongodb/mongo-c-driver/releases/download/1.18.0/mongo-c-driver-1.18.0.tar.gz && \
-    tar -xzf mongo-c-driver-1.18.0.tar.gz && \
-    cd mongo-c-driver-1.18.0 && \
+# Download and install libmongoc 1.28.0
+RUN curl -OL https://github.com/mongodb/mongo-c-driver/releases/download/1.28.0/mongo-c-driver-1.28.0.tar.gz && \
+    tar -xzf mongo-c-driver-1.28.0.tar.gz && \
+    cd mongo-c-driver-1.28.0 && \
     mkdir cmake-build && cd cmake-build && \
     cmake -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF .. && \
     make && make install

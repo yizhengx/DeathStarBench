@@ -56,7 +56,11 @@ int main(int argc, char* argv[]) {
   }
 
   mongoc_client_t* mongodb_client = mongoc_client_pool_pop(mongodb_client_pool);
-  LOG(info) << "MONGOC_CLIENT IP/PORT: " << mongodb_client->initiator.host.host_and_port;
+  mongoc_server_description_t *server_description = mongoc_client_get_server_description(mongodb_client, 1);  // server_id = 1 (for example)
+  // Get the host and port information from the server description
+  const mongoc_host_list_t *host_info = mongoc_server_description_host(server_description);
+  std::cout << "MongoDB Client connected to IP: " << host_info->host << " on Port: " << host_info->port << std::endl;
+  
   if (!mongodb_client) {
     LOG(fatal) << "Failed to pop mongoc client";
     return EXIT_FAILURE;

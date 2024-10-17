@@ -2,20 +2,20 @@ FROM yg397/thrift-microservice-deps:xenial AS builder
 
 ARG LIB_REDIS_PLUS_PLUS_VERSION=1.2.3
 
-RUN apt-get install curl tar -y
+# RUN apt-get install curl tar -y
 
-# Uninstall any pre-existing libmongoc version
-RUN apt-get remove -y libmongoc-1.0-dev || true
+# # Uninstall any pre-existing libmongoc version
+# RUN apt-get remove -y libmongoc-1.0-dev || true
 
-# Download and install libmongoc 1.25.0
-RUN curl -OL https://github.com/mongodb/mongo-c-driver/releases/download/1.20.0/mongo-c-driver-1.20.0.tar.gz && \
-    tar -xzf mongo-c-driver-1.20.0.tar.gz && \
-    cd mongo-c-driver-1.20.0 && \
-    mkdir cmake-build && cd cmake-build && \
-    cmake -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF .. && \
-    make && make install
-# Set CMAKE_PREFIX_PATH so that CMake can find the correct version of libmongoc
-ENV CMAKE_PREFIX_PATH="/usr/local/lib/cmake/libmongoc-1.0"
+# # Download and install libmongoc 1.25.0
+# RUN curl -OL https://github.com/mongodb/mongo-c-driver/releases/download/1.20.0/mongo-c-driver-1.20.0.tar.gz && \
+#     tar -xzf mongo-c-driver-1.20.0.tar.gz && \
+#     cd mongo-c-driver-1.20.0 && \
+#     mkdir cmake-build && cd cmake-build && \
+#     cmake -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF .. && \
+#     make && make install
+# # Set CMAKE_PREFIX_PATH so that CMake can find the correct version of libmongoc
+# ENV CMAKE_PREFIX_PATH="/usr/local/lib/cmake/libmongoc-1.0"
 
 # Apply patch and re-install Redis plus plus
 RUN cd /tmp/redis-plus-plus\

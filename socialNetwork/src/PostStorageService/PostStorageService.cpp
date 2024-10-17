@@ -56,6 +56,7 @@ int main(int argc, char* argv[]) {
   }
 
   mongoc_client_t* mongodb_client = mongoc_client_pool_pop(mongodb_client_pool);
+  LOG(info) << "MONGOC_CLIENT IP/PORT: " << mongodb_client.initiator.host.host_and_port;
   if (!mongodb_client) {
     LOG(fatal) << "Failed to pop mongoc client";
     return EXIT_FAILURE;
